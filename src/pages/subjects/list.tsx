@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { DEPARTMENT_OPTIONS } from "@/constants";
 import { Subject } from "@/types";
+import { CrudFilter } from "@refinedev/core";
 import { useTable } from "@refinedev/react-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Search } from "lucide-react";
@@ -21,12 +22,12 @@ const SubjectList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
 
-  const departmentFilter =
+  const departmentFilter: CrudFilter[] =
     selectedDepartment === "all"
       ? []
       : [{ field: "department", operator: "eq", value: selectedDepartment }];
 
-  const searchFilter = searchQuery
+  const searchFilter: CrudFilter[] = searchQuery
     ? [{ field: "name", operator: "contains", value: searchQuery }]
     : [];
 
@@ -79,9 +80,7 @@ const SubjectList = () => {
       },
       filters: { permanent: [...departmentFilter, ...searchFilter] },
       sorters: {
-        initial:[
-            {field: 'id', order: 'desc'}
-        ]
+        initial: [{ field: "id", order: "desc" }],
       },
     },
   });
