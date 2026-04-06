@@ -25,10 +25,10 @@ const SubjectList = () => {
   const departmentFilter: CrudFilter[] =
     selectedDepartment === "all"
       ? []
-      : [{ field: "department", operator: "eq", value: selectedDepartment }];
+      : [{ field: "department", operator: "eq" as const, value: selectedDepartment }];
 
   const searchFilter: CrudFilter[] = searchQuery
-    ? [{ field: "name", operator: "contains", value: searchQuery }]
+    ? [{ field: "name", operator: "contains" as const, value: searchQuery }]
     : [];
 
   const subjectTable = useTable<Subject>({
@@ -53,7 +53,7 @@ const SubjectList = () => {
         },
         {
           id: "department",
-          accessorKey: "department",
+          accessorKey: "department.name",
           size: 150,
           header: () => <p className="column-title ml-2">Department</p>,
           cell: ({ getValue }) => (
