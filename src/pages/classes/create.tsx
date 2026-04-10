@@ -130,9 +130,7 @@ const ClassesCreate = () => {
                                 }
                               : null
                           }
-                          onChange={(file: any, field: any) =>
-                            setBannerImage(field, file)
-                          }
+                          onChange={(file: any) => setBannerImage(field, file)}
                         />
                       </FormControl>
                       <FormMessage />
