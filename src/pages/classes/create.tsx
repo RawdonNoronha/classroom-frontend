@@ -11,10 +11,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { useBack } from "@refinedev/core";
+import { useBack, useList } from "@refinedev/core";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm } from "@refinedev/react-hook-form";
 import { classSchema } from "@/lib/schema";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -27,16 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UploadWidget from "@/components/upload-widget";
-
-const teachers = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Smith" },
-];
-
-const subjects = [
-  { ID: 1, name: "Mathematics", code: "MATH" },
-  { ID: 2, name: "Biology", code: "BIO" },
-];
+import { Subject, User } from "@/types";
 
 const ClassesCreate = () => {
   const back = useBack();
@@ -56,17 +47,40 @@ const ClassesCreate = () => {
   });
 
   const {
+    refineCore: { onFinish },
     handleSubmit,
     formState: { isSubmitting, errors },
     control,
   } = form;
 
-  const onSubmit = (_values: z.infer<typeof classSchema>) => {
+  const onSubmit = async (values: z.infer<typeof classSchema>) => {
     try {
+      await onFinish(values);
     } catch (e) {
       console.log("Error creating new classes", e);
     }
   };
+
+  const { query: subjectsQuery } = useList<Subject>({
+    resource: "subjects",
+    pagination: {
+      pageSize: 100,
+    },
+  });
+
+  const { query: teachersQuery } = useList<User>({
+    resource: "users",
+    filters: [{ field: "role", operator: "eq", value: "teacher" }],
+    pagination: {
+      pageSize: 100,
+    },
+  });
+
+  const subjects = subjectsQuery?.data?.data || [];
+  const subjectsLoading = subjectsQuery.isLoading;
+
+  const teachers = teachersQuery?.data?.data || [];
+  const teachersLoading = teachersQuery.isLoading;
 
   const bannerPublicId = form.watch("bannerCldPubId");
 
@@ -175,6 +189,7 @@ const ClassesCreate = () => {
                               field.onChange(Number(value))
                             }
                             value={field?.value?.toString()}
+                            disabled={subjectsLoading}
                           >
                             <SelectTrigger
                               className={"w-full"}
@@ -185,8 +200,8 @@ const ClassesCreate = () => {
                             <SelectContent>
                               {subjects.map((subject) => (
                                 <SelectItem
-                                  key={subject.ID}
-                                  value={subject.ID.toString()}
+                                  key={subject.id}
+                                  value={subject.id.toString()}
                                 >
                                   {subject.name + " (" + subject.code + ")"}
                                 </SelectItem>
@@ -211,6 +226,7 @@ const ClassesCreate = () => {
                           <Select
                             onValueChange={(value) => field.onChange(value)}
                             value={field?.value?.toString()}
+                            disabled={teachersLoading}
                           >
                             <SelectTrigger
                               className="w-full"
