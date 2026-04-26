@@ -2,7 +2,6 @@ import { BACKEND_BASE_URL } from "@/constants";
 import { CreateResponse, ListResponse } from "@/types";
 import { HttpError } from "@refinedev/core";
 import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
-import { resourceLimits } from "worker_threads";
 
 if (!BACKEND_BASE_URL) throw new Error("BACKEND_BASE_URL is not defined in environment variables");
 
@@ -71,6 +70,8 @@ const options: CreateDataProviderOptions = {
     buildBodyParams: async ({ variables }) => variables,
 
     mapResponse: async (response) => {
+      if (!response.ok) throw await buildHttpErrors(response);
+      
       const json: CreateResponse = await response.json();
 
       return json.data ?? [];
